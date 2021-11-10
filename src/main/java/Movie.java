@@ -1,12 +1,18 @@
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
+import java.util.ArrayList;
+
 public class Movie {
 
-    public void getMovieList(String type){
-        System.out.println("Most Popular " + type.substring(0,1).toUpperCase() + type.substring(1) + " Movies");
-        System.out.println();
-        HttpResponse<String> response = Unirest.get("https://imdb8.p.rapidapi.com/title/get-popular-movies-by-genre?genre=%2Fchart%2Fpopular%2Fgenre%2F" + type)
+    ContentCreator main;
+    public Movie(ContentCreator instance) {
+        main = instance;
+    }
+
+    public void getMovieList(String category){
+        ArrayList<String> movieList = new ArrayList<>();
+        HttpResponse<String> response = Unirest.get("https://imdb8.p.rapidapi.com/title/get-popular-movies-by-genre?genre=%2Fchart%2Fpopular%2Fgenre%2F" + category)
                 .header("x-rapidapi-host", "imdb8.p.rapidapi.com")
                 .header("x-rapidapi-key", "2ee9edf7cdmsh9fef533ee484a2fp1b5759jsn15dc37d0d1da")
                 .asString();
@@ -14,12 +20,12 @@ public class Movie {
         for (int i = 0; i < 10; i++){
             String movie = list[i];
             String movieID = movie.substring(8, movie.length()-2);
-            getMovie(movieID);
+            movieList.add(movieID);
         }
-        System.out.println();
+        main.movies.put(category, movieList);
     }
 
-    public void getMovie(String movieID){
+    public String getMovie(String movieID){
         HttpResponse<String> response = Unirest.get("https://imdb8.p.rapidapi.com/title/get-details?tconst=" + movieID)
                 .header("x-rapidapi-host", "imdb8.p.rapidapi.com")
                 .header("x-rapidapi-key", "2ee9edf7cdmsh9fef533ee484a2fp1b5759jsn15dc37d0d1da")
@@ -34,7 +40,7 @@ public class Movie {
                 year = Integer.valueOf(info.substring(7));
             }
         }
-        System.out.println(name + " (" + year + ")");
+        return name + " (" + year + ")";
     }
 
 }
